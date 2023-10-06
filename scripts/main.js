@@ -1,29 +1,62 @@
 //DOM elements
 let container = document.getElementById("ticketCardsContainer");
+let containerSm = document.getElementById("ticketCardsContainerSm");
+
 let labelTotal = document.getElementById("lblTotal")
 let lblChange = document.getElementById("lblChange")
 let amountOfMoneyGiven = document.getElementById("amountOfMoneyGivenInput");
 
 //Available items
 const itemsList = [
-  { name: "Pizza", price: 2.00, img: "media/pizza.png" },
+  //comida normal
+  { name: "Desayuno", price: 2.25, img: "media/desayuno.png" },
+  { name: "Almuerzo", price: 3.50, img: "media/almuerzo.jpg" },
+  { name: "Pupusa", price: 1.00, img: "media/pupusas.png" },
+  { name: "Panini con papas", price: 2.00, img: "media/panini.png" },
+  { name: "Burrito", price: 2.50, img: "media/burrito.png" },
+
+  //chucherias
+  { name: "Pizza", price: 1.50, img: "media/pizza.png" },
   { name: "Hot dog", price: 1.50, img: "media/hotdog.png" },
   { name: "Frozen", price: 1.50, img: "media/frozen.png" },
-  { name: "Soda", price: 0.75, img: "media/sodas.png" },
-  { name: "Agua", price: 0.50, img: "media/agua.png" },
-  { name: "Jugos", price: 0.60, img: "media/jugos.png" },
+  { name: "Chocobanano", price: 1.25, img: "media/chocobanano.png" },
+  { name: "Minuta", price: 1.50, img: "media/minuta.png" },
+  { name: "Dona", price: 1.00, img: "media/dona.png" },
+  { name: "Hambur. con papas", price: 3.00, img: "media/hamburguesa.png" },
+  { name: "Orden de nachos", price: 2.50, img: "media/nachos.png" },
+  { name: "Cupin", price: 1.50, img: "media/cupin.png" },
+  { name: "Churros españoles", price: 1.75, img: "media/churro.jpg" },
+  { name: "Papas fritas", price: 1.75, img: "media/papas.png" },
+
+  //bebidas
+  { name: "Sodas / Jugos", price: 1.00, img: "media/sodas.png" },
+  { name: "Agua", price: 0.75, img: "media/agua.png" },
+  { name: "Café", price: 0.50, img: "media/cafe.png" },
 ];
 
 //control variables
 let total = 0.0
 let moneyGiven = 0.0
 
-//creating a card for each item on the items list
-for (let index = 0; index < itemsList.length; index++) {
-  const item = itemsList[index]; container.innerHTML += `<div
-  class="cols col-12 col-sm-6 col-lg-3 mb-4">
+loadItems()
 
-  <div class="card d-md-none mb-0" style="max-width: 540px;">
+window.onresize = function () {
+  resetCalculations()
+  loadItems()
+};
+
+function loadItems() {
+
+  // Check the screen width and execute the appropriate function
+  //creating a card for each item on the items list
+  if (window.innerWidth < 1366) {
+    container.classList.add("hide-container")
+    containerSm.classList.remove("hide-container")
+    for (let index = 0; index < itemsList.length; index++) {
+      const item = itemsList[index]; containerSm.innerHTML += ` <div
+  class="cols col-12 col-sm-6 mb-2">
+
+  <div class="card mb-0" style="max-width: 540px;">
     <div class="row g-0">
       <div class="col-5">
         <!-- picture -->
@@ -49,28 +82,42 @@ for (let index = 0; index < itemsList.length; index++) {
     </div>
   </div>
 
-  <div class="card d-none d-md-block">
+  </div>`;
+    }
 
-    <!-- picture -->
-    <img src="${item.img}" class="card-img-top" alt="${item.name}">
+  } else {
 
-    <div class="card-body">
-      <!-- textutal details -->
-      <h5 class="card-title text-center">${item.name}</h5>
-      <p class="card-text text-center text-success fw-bold">${toUSDFormat(item.price)} c/u</p>
+    containerSm.classList.add("hide-container")
+    container.classList.remove("hide-container")
 
-      <!-- card actions -->
-      <div class="input-group mb-2">
-        <a class="btn btn-danger fw-bold" id="btn-minus-${index}" href="#" role="button"
-          onclick="deleteProduct(event,'input-${index}', ${item.price})">-</a>
-        <input readonly type="number" id="input-${index}" value="0" min="0" pattern="^[0-9]*$"
-          class="form-control fw-bold fs-4 text-center" aria-describedby="basic-addon1">
-        <a class="btn btn-primary fw-bold" id="btn-plus-${index}" href="#" role="button"
-          onclick="addProduct(event,'input-${index}', ${item.price})">+</a>
+    for (let index = 0; index < itemsList.length; index++) {
+      const item = itemsList[index]; container.innerHTML += ` <div
+    class=" mb-2">
+
+    <div class="card" style="max-width: 195px !important;">
+
+      <!-- picture -->
+      <img src="${item.img}" class="card-img-top mb-0 pb-0" alt="${item.name}">
+
+      <div class="card-body mt-0 pt-0 pb-1 px-1">
+        <!-- textutal details -->
+        <p class="fw-semibold fs-5 text-center mb-0 mt-0">${item.name}</p>
+        <p class="card-text text-center text-success fw-bold mb-0">${toUSDFormat(item.price)} c/u</p>
+
+        <!-- card actions -->
+        <div class="input-group mb-0 mt-0">
+          <a class="btn btn-danger fw-bold" id="btn-minus-${index}" href="#" role="button"
+            onclick="deleteProduct(event,'input-${index}', ${item.price})">-</a>
+          <input readonly type="number" id="input-${index}" value="0" min="0" pattern="^[0-9]*$"
+            class="form-control fw-bold fs-4 text-center" aria-describedby="basic-addon1">
+          <a class="btn btn-primary fw-bold" id="btn-plus-${index}" href="#" role="button"
+            onclick="addProduct(event,'input-${index}', ${item.price})">+</a>
+        </div>
       </div>
     </div>
-  </div>
-  </div>`;
+    </div>`;
+    }
+  }
 }
 
 //logic
@@ -128,37 +175,38 @@ function updateChange() {
     //Alert
     if (moneyGiven == 0) {
       lblChange.innerHTML = `
-    <div class="card border-warning mb-1 mt-3">
-      <div class="card-header"><span class="fw-bold">¡Alerta!</span></div>
-      <div class="card-body">
-        <p class="card-text">Debe ingresar la cantidad de dinero otorgada por el cliente para poder calcular el vuelto.
-        </p>
+      <div class="card border-warning mb-1 mt-3">
+        <div class="card-header"><span class="fw-bold">¡Alerta!</span></div>
+        <div class="card-body">
+          <p class="card-text">Debe ingresar la cantidad de dinero otorgada por el cliente para poder calcular el
+            vuelto.
+          </p>
+        </div>
       </div>
-    </div>
-    `
+      `
       return
     }
 
     //Alert
     if (changeToGive.toFixed(2) < 0) {
       lblChange.innerHTML = ` <div class="card text-bg-danger mb-1 mt-3">
-      <div class="card-header"><span class="fw-bold">¡Alerta!</span></div>
-      <div class="card-body">
-        <h5 class="card-title">Dinero insuficiente</h5>
-        <p class="card-text">El monto otorgado por el cliente es menor a monto total debitado. <span
-            class="fw-bold">(${toUSDFormat(total.toFixed(2))} dólares)</span></p>
-        <hr>
-        <p class="card-text"><span class="fw-bold"> Dinero faltante: ${toUSDFormat(total.toFixed(2) - moneyGiven)}
-            ${currencyType(total.toFixed(2) - moneyGiven)}</span></p>
-      </div>
-      </div>
-      `
+        <div class="card-header"><span class="fw-bold">¡Alerta!</span></div>
+        <div class="card-body">
+          <h5 class="card-title">Dinero insuficiente</h5>
+          <p class="card-text">El monto otorgado por el cliente es menor a monto total debitado. <span
+              class="fw-bold">(${toUSDFormat(total.toFixed(2))} dólares)</span></p>
+          <hr>
+          <p class="card-text"><span class="fw-bold"> Dinero faltante: ${toUSDFormat(total.toFixed(2) - moneyGiven)}
+              ${currencyType(total.toFixed(2) - moneyGiven)}</span></p>
+        </div>
+        </div>
+        `
       return
     }
 
     //Change if every condition is met
     lblChange.innerHTML = `<p class="fw-bold mt-0 fs-1 text-danger">${toUSDFormat(changeToGive.toFixed(2))}
-        ${currencyType(changeToGive.toFixed(2))}</p>`
+          ${currencyType(changeToGive.toFixed(2))}</p>`
   }
 }
 
