@@ -18,15 +18,15 @@ const itemsList = [
   //chucherias
   { name: "Pizza", price: 1.50, img: "media/pizza.png" },
   { name: "Hot dog", price: 1.50, img: "media/hotdog.png" },
+  { name: "Hambur. con papas", price: 3.00, img: "media/hamburguesa.png" },
+  { name: "Orden de nachos", price: 2.50, img: "media/nachos.png" },
+  { name: "Churros españoles", price: 1.75, img: "media/churro.jpg" },
+  { name: "Papas fritas", price: 1.75, img: "media/papas.png" },
   { name: "Frozen", price: 1.50, img: "media/frozen.png" },
   { name: "Chocobanano", price: 1.25, img: "media/chocobanano.png" },
   { name: "Minuta", price: 1.50, img: "media/minuta.png" },
   { name: "Dona", price: 1.00, img: "media/dona.png" },
-  { name: "Hambur. con papas", price: 3.00, img: "media/hamburguesa.png" },
-  { name: "Orden de nachos", price: 2.50, img: "media/nachos.png" },
   { name: "Cupin", price: 1.50, img: "media/cupin.png" },
-  { name: "Churros españoles", price: 1.75, img: "media/churro.jpg" },
-  { name: "Papas fritas", price: 1.75, img: "media/papas.png" },
 
   //bebidas
   { name: "Sodas / Jugos", price: 1.00, img: "media/sodas.png" },
@@ -40,10 +40,38 @@ let moneyGiven = 0.0
 
 loadItems()
 
+
+
+// Store the initial window width
+let windowWidth = window.innerWidth;
+
+// Function to handle the resize event
+function handleResize() {
+  // Check if the window width has changed significantly
+  if (Math.abs(window.innerWidth - windowWidth) > 50) {
+    // Create a custom event
+    let event = new CustomEvent('resize-side', { detail: window.innerWidth });
+
+    // Dispatch the event
+    window.dispatchEvent(event);
+  }
+
+  // Update the stored window width
+  windowWidth = window.innerWidth;
+}
+
+// Add the event listener
+// window.addEventListener('resize', );
+
 window.onresize = function () {
+  handleResize()
+};
+
+// Add a listener for the custom resize event
+window.addEventListener('resize-side', function (e) {
   resetCalculations()
   loadItems()
-};
+});
 
 function loadItems() {
 
