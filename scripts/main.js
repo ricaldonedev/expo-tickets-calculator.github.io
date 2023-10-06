@@ -38,18 +38,18 @@ for (let index = 0; index < itemsList.length; index++) {
           <!-- card actions -->
           <div class="input-group mb-2">
             <a class="btn btn-danger fw-bold" id="btn-minus-${index}" href="#" role="button"
-              onclick="deleteProduct(event,'input-${index}', ${item.price})">-</a>
-            <input readonly type="number" id="input-${index}" value="0" min="0" pattern="^[0-9]*$"
+              onclick="deleteProduct(event,'inputSm-${index}', ${item.price})">-</a>
+            <input readonly type="number" id="inputSm-${index}" value="0" min="0" pattern="^[0-9]*$"
               class="form-control fw-bold fs-4 text-center" aria-describedby="basic-addon1">
             <a class="btn btn-primary fw-bold" id="btn-plus-${index}" href="#" role="button"
-              onclick="addProduct(event,'input-${index}', ${item.price})">+</a>
+              onclick="addProduct(event,'inputSm-${index}', ${item.price})">+</a>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="card d-none d-md-inline">
+  <div class="card d-none d-md-block">
 
     <!-- picture -->
     <img src="${item.img}" class="card-img-top" alt="${item.name}">
