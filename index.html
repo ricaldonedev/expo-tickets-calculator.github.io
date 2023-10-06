@@ -14,7 +14,7 @@
     <div class="container-fluid">
       <p class="fs-3 fw-semibold text-light mb-0">Expotécnica 2023</p>
       <form class="d-flex" role="search">
-        <button class="btn btn-outline-warning" type="submit">
+        <button class="btn btn-warning" type="button" onclick="resetCalculations()">
           Nuevo cálculo
         </button>
       </form>
@@ -27,29 +27,46 @@
       <div class="cols col-12 col-sm-11 col-lg-8">
         <!-- cards container -->
         <div class="row" id="ticketCardsContainer">
-          <!-- Each individual card -->
+          <!-- Each individual card is loaded here-->
         </div>
       </div>
 
-      <!-- Total amount of mony calculation -->
+      <!-- Total amount of money calculation -->
       <div class="cols col-12 col-sm-11 col-lg-4">
         <div class="card">
-          <h5 class="card-header">Total a cobrar</h5>
+          <h5 class="card-header">Cálculos según artículos seleccionados</h5>
 
           <div class="card-body">
-            <a href="#" class="btn btn-primary">Calcular total</a>
-            <p class="fw-bold mt-3 fs-1 text-success" id="lblTotal">$0.00</p>
+            <!-- TOTAL -->
+            <p class="fw-bold fs-3 mb-0">
+              Total a cobrar
+            </p>
+            <p class="fw-bold mt-0 fs-1 text-success" id="lblTotal">$0.00</p>
+            <hr>
+            <!-- Amount given by client -->
+            <p class="fw-semibold mt-3 fs-5 text-center">¿Cuánto dinero entregó el cliente?</p>
+            <div class="input-group mb-4">
+              <span class="input-group-text">$</span>
+              <input class="form-control fw-bold fs-4" id="amountOfMoneyGivenInput" type="number" value="0" min="0"
+                pattern="^[0-9]*$">
+              <span class="input-group-text">dólares</span>
+            </div>
 
-            <p class="fw-semibold mt-3 fs-4">Dinero entregado</p>
-
+            <hr>
+            <!-- Alerts and final change calculations -->
+            <p class="fw-bold fs-3 mb-0">
+              Cambio para cliente
+            </p>
+            <div id="lblChange" class="pa-0 ma-0">
+              <!-- placeholder -->
+              <p class="fw-bold mt-0 fs-1 text-danger">$0.00</p>
+            </div>
           </div>
-
-          <!-- <div class="card-body">
-            <h5 class="card-title">Special title treatment</h5>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div> -->
         </div>
+        <div class="d-grid gap-2 mt-5">
+          <button class="btn btn-primary" type="button" onclick="resetCalculations()">Nuevo cálculo</button>
+        </div>
+
       </div>
     </div>
   </div>
