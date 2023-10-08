@@ -1,0 +1,23 @@
+{
+  "name": "expo-tickets-calculator",
+  "version": "1.0.1",
+  "description": "Calculator made to make easier the action of get money for some tickets and return the correct amout on change to the client",
+  "main": "./scripts/main.js",
+  "scripts": {
+    "start": "node ./scripts/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ricaldonedev/expo-tickets-calculator.git"
+  },
+  "author": "Departamento de desarrollo de software del ITR",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ricaldonedev/expo-tickets-calculator/issues"
+  },
+  "homepage": "https://github.com/ricaldonedev/expo-tickets-calculator#readme",
+  "dependencies": {
+    "ws": "^8.14.2"
+  }
+}

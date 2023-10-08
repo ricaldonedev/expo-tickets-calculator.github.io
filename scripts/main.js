@@ -9,29 +9,29 @@ let amountOfMoneyGiven = document.getElementById("amountOfMoneyGivenInput");
 //Available items
 const itemsList = [
   //comida normal
-  { name: "Desayuno", price: 2.25, img: "media/desayuno.png" },
-  { name: "Almuerzo", price: 3.50, img: "media/almuerzo.jpg" },
-  { name: "Pupusa", price: 1.00, img: "media/pupusas.png" },
-  { name: "Panini con papas", price: 2.00, img: "media/panini.png" },
-  { name: "Burrito", price: 2.50, img: "media/burrito.png" },
+  { id: 1, name: "Desayuno", price: 2.25, img: "media/desayuno.png" },
+  { id: 2, name: "Almuerzo", price: 3.50, img: "media/almuerzo.jpg" },
+  { id: 3, name: "Pupusa", price: 1.00, img: "media/pupusas.png" },
+  { id: 4, name: "Panini con papas", price: 2.00, img: "media/panini.png" },
+  { id: 5, name: "Burrito", price: 2.50, img: "media/burrito.png" },
 
   //chucherias
-  { name: "Pizza", price: 1.50, img: "media/pizza.png" },
-  { name: "Hot dog", price: 1.50, img: "media/hotdog.png" },
-  { name: "Hambur. con papas", price: 3.00, img: "media/hamburguesa.png" },
-  { name: "Orden de nachos", price: 2.50, img: "media/nachos.png" },
-  { name: "Churros españoles", price: 1.75, img: "media/churro.jpg" },
-  { name: "Papas fritas", price: 1.75, img: "media/papas.png" },
-  { name: "Frozen", price: 1.50, img: "media/frozen.png" },
-  { name: "Chocobanano", price: 1.25, img: "media/chocobanano.png" },
-  { name: "Minuta", price: 1.50, img: "media/minuta.png" },
-  { name: "Dona", price: 1.00, img: "media/dona.png" },
-  { name: "Cupin", price: 1.50, img: "media/cupin.png" },
+  { id: 6, name: "Pizza", price: 1.50, img: "media/pizza.png" },
+  { id: 7, name: "Hot dog", price: 1.50, img: "media/hotdog.png" },
+  { id: 8, name: "Hambur. con papas", price: 3.00, img: "media/hamburguesa.png" },
+  { id: 9, name: "Orden de nachos", price: 2.50, img: "media/nachos.png" },
+  { id: 10, name: "Churros españoles", price: 1.75, img: "media/churro.jpg" },
+  { id: 11, name: "Papas fritas", price: 1.75, img: "media/papas.png" },
+  { id: 12, name: "Frozen", price: 1.50, img: "media/frozen.png" },
+  { id: 13, name: "Chocobanano", price: 1.25, img: "media/chocobanano.png" },
+  { id: 14, name: "Minuta", price: 1.50, img: "media/minuta.png" },
+  { id: 15, name: "Dona", price: 1.00, img: "media/dona.png" },
+  { id: 16, name: "Cupin", price: 1.50, img: "media/cupin.png" },
 
   //bebidas
-  { name: "Sodas / Jugos", price: 1.00, img: "media/sodas.png" },
-  { name: "Agua", price: 0.75, img: "media/agua.png" },
-  { name: "Café", price: 0.50, img: "media/cafe.png" },
+  { id: 17, name: "Sodas / Jugos", price: 1.00, img: "media/sodas.png" },
+  { id: 18, name: "Agua", price: 0.75, img: "media/agua.png" },
+  { id: 19, name: "Café", price: 0.50, img: "media/cafe.png" },
 ];
 
 //control variables
@@ -99,11 +99,11 @@ function loadItems() {
           <!-- card actions -->
           <div class="input-group mb-2">
             <a class="btn btn-danger fw-bold" id="btn-minus-${index}" href="#" role="button"
-              onclick="deleteProduct(event,'inputSm-${index}', ${item.price})">-</a>
+              onclick="deleteProduct(event,'inputSm-${index}', ${item.price}, ${item.id})">-</a>
             <input readonly type="number" id="inputSm-${index}" value="0" min="0" pattern="^[0-9]*$"
               class="form-control fw-bold fs-4 text-center" aria-describedby="basic-addon1">
             <a class="btn btn-primary fw-bold" id="btn-plus-${index}" href="#" role="button"
-              onclick="addProduct(event,'inputSm-${index}', ${item.price})">+</a>
+              onclick="addProduct(event,'inputSm-${index}', ${item.price},${item.id})">+</a>
           </div>
         </div>
       </div>
@@ -135,11 +135,11 @@ function loadItems() {
         <!-- card actions -->
         <div class="input-group mb-0 mt-0">
           <a class="btn btn-danger fw-bold" id="btn-minus-${index}" href="#" role="button"
-            onclick="deleteProduct(event,'input-${index}', ${item.price})">-</a>
+            onclick="deleteProduct(event,'input-${index}', ${item.price} ,${item.id})">-</a>
           <input readonly type="number" id="input-${index}" value="0" min="0" pattern="^[0-9]*$"
             class="form-control fw-bold fs-4 text-center" aria-describedby="basic-addon1">
           <a class="btn btn-primary fw-bold" id="btn-plus-${index}" href="#" role="button"
-            onclick="addProduct(event,'input-${index}', ${item.price})">+</a>
+            onclick="addProduct(event,'input-${index}', ${item.price}, ${item.id})">+</a>
         </div>
       </div>
     </div>
@@ -149,23 +149,45 @@ function loadItems() {
 }
 
 //logic
-function addProduct(event, idInput, selectedItemPrice) {
+
+// Create WebSocket connection.
+const socket = new WebSocket('ws://localhost:8080');
+
+// Connection opened
+socket.addEventListener('open', (event) => {
+});
+
+// Listen for messages
+socket.addEventListener('message', (event) => {
+  console.log('Message from server: ', event.data);
+  // Here you can update your table with the data received from the server
+});
+
+function addProduct(event, idInput, selectedItemPrice, selectedItemId) {
   event.preventDefault();
   let input = document.getElementById(idInput);
   input.value++;
   total += parseFloat(selectedItemPrice)
   labelTotal.innerText = `${toUSDFormat(total.toFixed(2))} ${currencyType(total.toFixed(2))}`
 
+  // Send the ID of the added item to the server
+  // let itemId = idInput.split('-')[1]; // Assuming the ID is the number after the dash in 'inputSm-<ID>'
+  socket.send(selectedItemId);
+
   updateChange()
 }
 
-function deleteProduct(event, idInput, selectedItemPrice) {
+function deleteProduct(event, idInput, selectedItemPrice, selectedItemId) {
   event.preventDefault();
   let input = document.getElementById(idInput);
   if (input.value > 0) {
     input.value--;
     total -= parseFloat(selectedItemPrice)
     labelTotal.innerText = `${toUSDFormat(total.toFixed(2))} ${currencyType(total.toFixed(2))}`
+
+    // Send the ID of the removed item to the server, prefixed with a minus sign
+    let itemId = '-' + selectedItemId; // Assuming the ID is the number after the dash in 'inputSm-<ID>'
+    socket.send(itemId);
 
     updateChange()
   }
