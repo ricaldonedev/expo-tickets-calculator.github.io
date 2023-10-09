@@ -1,12 +1,14 @@
 //DOM elements
 let container = document.getElementById("ticketCardsContainer");
 let containerSm = document.getElementById("ticketCardsContainerSm");
-
+let resetButton = document.getElementById("resetButton")
 let labelTotal = document.getElementById("lblTotal")
 let lblChange = document.getElementById("lblChange")
 let amountOfMoneyGiven = document.getElementById("amountOfMoneyGivenInput");
 
 //Available items
+let selectedItemsIds = [];
+let selectedArticlesWithAmount = []
 const itemsList = [
   //comida normal
   { id: 1, name: "Desayuno", price: 2.25, img: "media/desayuno.png" },
@@ -153,16 +155,6 @@ function loadItems() {
 // Create WebSocket connection.
 const socketItemSelector = new WebSocket('ws://localhost:8080');
 
-// Connection opened
-socketItemSelector.addEventListener('open', (event) => {
-});
-
-// Listen for messages
-socketItemSelector.addEventListener('message', (event) => {
-  console.log('Message from server: ', event.data);
-  // Here you can update your table with the data received from the server
-});
-
 function addProduct(event, idInput, selectedItemPrice, selectedItemId) {
   event.preventDefault();
   let input = document.getElementById(idInput);
@@ -171,7 +163,7 @@ function addProduct(event, idInput, selectedItemPrice, selectedItemId) {
   labelTotal.innerText = `${toUSDFormat(total.toFixed(2))} ${currencyType(total.toFixed(2))}`
 
   // Send the ID of the added item to the server
-  socketItemSelector.send(selectedItemId);
+  addOrRemoveItemToList(selectedItemId);
 
   updateChange()
 }
@@ -188,10 +180,74 @@ function deleteProduct(event, idInput, selectedItemPrice, selectedItemId) {
 
     // Send the ID of the removed item to the server, prefixed with a minus sign
     let itemId = '-' + selectedItemId;
-    socketItemSelector.send(itemId);
+    // socketItemSelector.send(itemId);
+    addOrRemoveItemToList(itemId);
 
     updateChange()
   }
+}
+
+function addOrRemoveItemToList(itemId) {
+
+  if (itemId && itemId.toString().startsWith('-')) {
+    // Remove item from table
+    let itemToRemove = itemId.substring(1);
+
+    if (itemToRemove) {
+      for (let index = 0; index < selectedItemsIds.length; index++) {
+        const item = selectedItemsIds[index];
+
+        if (item == itemToRemove) {
+          selectedItemsIds.splice(index, 1)
+
+          /*without this, the loop removes all items from
+           the array that make true the condition all at 
+           once!*/
+          break;
+        }
+      }
+
+      generateObjectsOfSelectedItems();
+    }
+
+  } else {
+    selectedItemsIds.push(itemId)
+
+    generateObjectsOfSelectedItems()
+    // Add item to table
+  }
+}
+
+function generateObjectsOfSelectedItems() {
+  //reseting state
+  selectedArticlesWithAmount = []
+
+  /*first, we count how many id's of each selected item
+   there is on the selectedItems array*/
+  const idCounts = selectedItemsIds.reduce((counts, id) => {
+    counts[id] = (counts[id] || 0) + 1;
+    return counts;
+  }, {});
+
+
+  // Create new array of objects given the id´s of the items
+
+  /* with the filter, we just leave the items which id's were 
+  present on "selectedItemsIds" array */
+  selectedArticlesWithAmount = itemsList.filter(obj => idCounts.hasOwnProperty(obj.id)).map(obj => {
+
+    //adding how many times the article it's been selected
+    const count = idCounts[obj.id];
+    return {
+      ...obj,
+      count
+    };
+
+  });
+
+  //sending the items object list to the table page
+  socketItemSelector.send(JSON.stringify(selectedArticlesWithAmount));
+
 }
 
 function toUSDFormat(str) {
@@ -216,7 +272,21 @@ function currencyType(amount) {
 }
 
 function resetCalculations() {
+
+  selectedArticlesWithAmount = []
+  socketItemSelector.send(JSON.stringify(selectedArticlesWithAmount));
+
   location.reload()
+}
+
+function openSummaryOnTable() {
+  window.open('selectedItems.html', '_blank', 'width=1366,height=768');
+
+  // The new window has opened
+  setTimeout(() => {
+    socketItemSelector.send(JSON.stringify(selectedArticlesWithAmount));
+  }, 500)
+
 }
 
 function updateChange() {

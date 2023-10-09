@@ -16,9 +16,7 @@
         <div class="container-fluid">
             <p class="fs-3 fw-semibold text-light mb-0">Expotécnica 2023</p>
             <form class="d-flex" role="search">
-                <button class="btn btn-warning" type="button" onclick="resetCalculations()">
-                    Nuevo cálculo
-                </button>
+
             </form>
         </div>
     </nav>
@@ -26,23 +24,34 @@
     <div class="container pt-4">
         <div class="row">
             <div class="col">
-                <p class="fw-semibold fs-3">Resumen de tickets seleccionados:</p>
+                <p class="fw-semibold fs-3 text-center">Resumen de tickets seleccionados</p>
             </div>
         </div>
         <div class="row">
-            <table class="table table-hover">
+            <table id="summaryTable" class="table table-hover hide-container">
                 <thead>
                     <tr>
-                        <th scope="col">Artículo</th>
                         <th scope="col">Cantidad</th>
+                        <th scope="col">Artículo</th>
                         <th scope="col">Precio unitario</th>
+                        <th scope="col">Precio total</th>
                     </tr>
                 </thead>
                 <tbody id="selectedItemsTableBody">
-
-
+                    <!-- Here's where the items load -->
                 </tbody>
             </table>
+            <div id="fallbackEmptyListMessage" class="col-12 d-flex align-items-center justify-content-center py-5">
+                <div class="alert alert-primary " role="alert">
+                    <h4 class="alert-heading">No hay artículos seleccionados</h4>
+                    <p>No se ha añadido ningún artículo a la lista de tickets del cliente. Seleccione un artículo y se
+                        mostrará
+                        en la lista el resumen.</p>
+                    <hr>
+                    <p class="mb-0 fw-bold">Recuerde contar y revisar que la cantidad de tickets a entregar sea la
+                        correcta.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -54,113 +63,69 @@
     <script>
 
         let tableBody = document.getElementById("selectedItemsTableBody")
-        let selectedItemsIds = [];
-        let selectedArticlesWithAmount = []
+        let selectedArticles
+        let emptyTableFallbackMsg = document.getElementById("fallbackEmptyListMessage")
+
+        let summaryTable = document.getElementById("summaryTable")
 
         // Create WebSocket connection.
         const socketSummaryTable = new WebSocket('ws://localhost:8080');
 
-        // Connection opened
-        socketSummaryTable.addEventListener('open', (event) => {
-            // socket2.send('Hello socketSummaryTable!');
-        });
-
         socketSummaryTable.addEventListener('message', (event) => {
+            selectedArticles = []
 
-            let reader = new FileReader();
+            if (event.data instanceof Blob) {
+                const reader = new FileReader();
 
-            //this is done to parse 'blob' into 'string'
-            reader.onload = function () {
-
-                let itemId = this.result;
-
-                if (itemId.startsWith('-')) {
-                    // Remove item from table
-                    let itemToRemove = itemId.substring(1);
-
-                    if (itemToRemove) {
-                        for (let index = 0; index < selectedItemsIds.length; index++) {
-                            const item = selectedItemsIds[index];
-
-                            if (item == itemToRemove) {
-                                selectedItemsIds.splice(index, 1)
-
-                                /*without this, the loop removes all items from
-                                 the array that make true the condition all at 
-                                 once!*/
-                                break;
-                            }
-                        }
-
-                        generateObjectsOfSelectedItems();
-                    }
-
-                } else {
-                    selectedItemsIds.push(itemId)
-
-                    generateObjectsOfSelectedItems()
-                    // Add item to table
-                }
-            }
-
-            reader.readAsText(event.data);
-        });
-
-
-
-        function generateObjectsOfSelectedItems() {
-            //reseting state
-            selectedArticlesWithAmount = []
-
-            /*first, we count how many id's of each selected item
-             there is on the selectedItems array*/
-            const idCounts = selectedItemsIds.reduce((counts, id) => {
-                counts[id] = (counts[id] || 0) + 1;
-                return counts;
-            }, {});
-
-
-            // Create new array of objects given the id´s of the items
-
-            /* with the filter, we just leave the items which id's were 
-            present on "selectedItemsIds" array */
-            selectedArticlesWithAmount = itemsList.filter(obj => idCounts.hasOwnProperty(obj.id)).map(obj => {
-
-                //adding how many times the article it's been selected
-                const count = idCounts[obj.id];
-                return {
-                    ...obj,
-                    count
+                reader.onload = function (event) {
+                    const text = event.target.result;
+                    selectedArticles = JSON.parse(text);
+                    loadTable();
                 };
 
-            });
+                reader.readAsText(event.data);
+            } else {
+                selectedArticles = JSON.parse(event.data);
+                loadTable();
+            }
+        });
 
-            /*now that we have the array of the selected items 
-            with their respective amounts, generate table.*/
-            loadTable()
-        }
 
         function loadTable() {
             tableBody.innerHTML = ``
 
-            for (let index = 0; index < selectedArticlesWithAmount.length; index++) {
-                const item = selectedArticlesWithAmount[index];
-                tableBody.innerHTML += ` 
+            if (selectedArticles && selectedArticles.length > 0) {
+
+                emptyTableFallbackMsg.classList.add("hide-container")
+                summaryTable.classList.remove("hide-container")
+
+                for (let index = 0; index < selectedArticles.length; index++) {
+                    const item = selectedArticles[index];
+
+                    tableBody.innerHTML += ` 
       <tr>
+        <td>
+                            <p class="fs-3 fw-bold mb-0">${item.count}</p>
+                        </td>
                         <th class="d-flex align-items-center">
                             <img style="max-width: 100px !important;" src="${item.img}" class="rounded">
                             <div class="ms-4">
                                 <p>${item.name}</p>
                             </div>
                         </th>
-                        <td>
-                            <p class="fs-3 fw-bold mb-0">${item.count}</p>
-                        </td>
+                     
                         <td>
                             <p class="fs-3 fw-bold mb-0">${toUSDFormat(item.price)}</p>
                         </td>
-                    </tr>
+                        <td>
+                            <p class="fs-3 fw-bold mb-0 text-success">${toUSDFormat(item.price * item.count)}</p>
+                        </td>
+                        </tr>
       `;
+                }
+            } else {
+                emptyTableFallbackMsg.classList.remove("hide-container")
+                summaryTable.classList.add("hide-container")
             }
         }
 
