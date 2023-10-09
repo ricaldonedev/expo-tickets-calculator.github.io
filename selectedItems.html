@@ -39,20 +39,7 @@
                     </tr>
                 </thead>
                 <tbody id="selectedItemsTableBody">
-                    <tr>
-                        <th class="d-flex align-items-center">
-                            <img style="max-width: 100px !important;" src="media/almuerzo.jpg" class="rounded">
-                            <div class="ms-4">
-                                <p>nombre artículo con papas</p>
-                            </div>
-                        </th>
-                        <td>
-                            <p class="fs-3 fw-bold mb-0">3</p>
-                        </td>
-                        <td>
-                            <p class="fs-3 fw-bold mb-0">$3.45</p>
-                        </td>
-                    </tr>
+
 
                 </tbody>
             </table>
@@ -66,21 +53,25 @@
     <script src="scripts/main.js"></script>
     <script>
 
+        let tableBody = document.getElementById("selectedItemsTableBody")
+        let selectedItemsIds = [];
+        let selectedArticlesWithAmount = []
+
         // Create WebSocket connection.
-        const socket2 = new WebSocket('ws://localhost:8080');
+        const socketSummaryTable = new WebSocket('ws://localhost:8080');
 
         // Connection opened
-        socket2.addEventListener('open', (event) => {
-            // socket2.send('Hello Server!');
+        socketSummaryTable.addEventListener('open', (event) => {
+            // socket2.send('Hello socketSummaryTable!');
         });
 
-        let selectedItems = [];
-
-        socket2.addEventListener('message', (event) => {
+        socketSummaryTable.addEventListener('message', (event) => {
 
             let reader = new FileReader();
 
+            //this is done to parse 'blob' into 'string'
             reader.onload = function () {
+
                 let itemId = this.result;
 
                 if (itemId.startsWith('-')) {
@@ -88,11 +79,11 @@
                     let itemToRemove = itemId.substring(1);
 
                     if (itemToRemove) {
-                        for (let index = 0; index < selectedItems.length; index++) {
-                            const item = selectedItems[index];
+                        for (let index = 0; index < selectedItemsIds.length; index++) {
+                            const item = selectedItemsIds[index];
 
                             if (item == itemToRemove) {
-                                selectedItems.splice(index, 1)
+                                selectedItemsIds.splice(index, 1)
 
                                 /*without this, the loop removes all items from
                                  the array that make true the condition all at 
@@ -100,10 +91,14 @@
                                 break;
                             }
                         }
+
+                        generateObjectsOfSelectedItems();
                     }
 
                 } else {
-                    selectedItems.push(itemId)
+                    selectedItemsIds.push(itemId)
+
+                    generateObjectsOfSelectedItems()
                     // Add item to table
                 }
             }
@@ -111,8 +106,62 @@
             reader.readAsText(event.data);
         });
 
-        function loadTable() {
 
+
+        function generateObjectsOfSelectedItems() {
+            //reseting state
+            selectedArticlesWithAmount = []
+
+            /*first, we count how many id's of each selected item
+             there is on the selectedItems array*/
+            const idCounts = selectedItemsIds.reduce((counts, id) => {
+                counts[id] = (counts[id] || 0) + 1;
+                return counts;
+            }, {});
+
+
+            // Create new array of objects given the id´s of the items
+
+            /* with the filter, we just leave the items which id's were 
+            present on "selectedItemsIds" array */
+            selectedArticlesWithAmount = itemsList.filter(obj => idCounts.hasOwnProperty(obj.id)).map(obj => {
+
+                //adding how many times the article it's been selected
+                const count = idCounts[obj.id];
+                return {
+                    ...obj,
+                    count
+                };
+
+            });
+
+            /*now that we have the array of the selected items 
+            with their respective amounts, generate table.*/
+            loadTable()
+        }
+
+        function loadTable() {
+            tableBody.innerHTML = ``
+
+            for (let index = 0; index < selectedArticlesWithAmount.length; index++) {
+                const item = selectedArticlesWithAmount[index];
+                tableBody.innerHTML += ` 
+      <tr>
+                        <th class="d-flex align-items-center">
+                            <img style="max-width: 100px !important;" src="${item.img}" class="rounded">
+                            <div class="ms-4">
+                                <p>${item.name}</p>
+                            </div>
+                        </th>
+                        <td>
+                            <p class="fs-3 fw-bold mb-0">${item.count}</p>
+                        </td>
+                        <td>
+                            <p class="fs-3 fw-bold mb-0">${toUSDFormat(item.price)}</p>
+                        </td>
+                    </tr>
+      `;
+            }
         }
 
 

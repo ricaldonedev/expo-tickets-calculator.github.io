@@ -40,8 +40,6 @@ let moneyGiven = 0.0
 
 loadItems()
 
-
-
 // Store the initial window width
 let windowWidth = window.innerWidth;
 
@@ -81,7 +79,8 @@ function loadItems() {
     container.classList.add("hide-container")
     containerSm.classList.remove("hide-container")
     for (let index = 0; index < itemsList.length; index++) {
-      const item = itemsList[index]; containerSm.innerHTML += ` <div
+      const item = itemsList[index];
+      containerSm.innerHTML += ` <div
   class="cols col-12 col-sm-6 mb-2">
 
   <div class="card mb-0" style="max-width: 540px;">
@@ -119,7 +118,8 @@ function loadItems() {
     container.classList.remove("hide-container")
 
     for (let index = 0; index < itemsList.length; index++) {
-      const item = itemsList[index]; container.innerHTML += ` <div
+      const item = itemsList[index];
+      container.innerHTML += ` <div
     class=" mb-2">
 
     <div class="card" style="max-width: 195px !important;">
@@ -151,14 +151,14 @@ function loadItems() {
 //logic
 
 // Create WebSocket connection.
-const socket = new WebSocket('ws://localhost:8080');
+const socketItemSelector = new WebSocket('ws://localhost:8080');
 
 // Connection opened
-socket.addEventListener('open', (event) => {
+socketItemSelector.addEventListener('open', (event) => {
 });
 
 // Listen for messages
-socket.addEventListener('message', (event) => {
+socketItemSelector.addEventListener('message', (event) => {
   console.log('Message from server: ', event.data);
   // Here you can update your table with the data received from the server
 });
@@ -171,23 +171,24 @@ function addProduct(event, idInput, selectedItemPrice, selectedItemId) {
   labelTotal.innerText = `${toUSDFormat(total.toFixed(2))} ${currencyType(total.toFixed(2))}`
 
   // Send the ID of the added item to the server
-  // let itemId = idInput.split('-')[1]; // Assuming the ID is the number after the dash in 'inputSm-<ID>'
-  socket.send(selectedItemId);
+  socketItemSelector.send(selectedItemId);
 
   updateChange()
 }
 
 function deleteProduct(event, idInput, selectedItemPrice, selectedItemId) {
   event.preventDefault();
+
   let input = document.getElementById(idInput);
+
   if (input.value > 0) {
     input.value--;
     total -= parseFloat(selectedItemPrice)
     labelTotal.innerText = `${toUSDFormat(total.toFixed(2))} ${currencyType(total.toFixed(2))}`
 
     // Send the ID of the removed item to the server, prefixed with a minus sign
-    let itemId = '-' + selectedItemId; // Assuming the ID is the number after the dash in 'inputSm-<ID>'
-    socket.send(itemId);
+    let itemId = '-' + selectedItemId;
+    socketItemSelector.send(itemId);
 
     updateChange()
   }
