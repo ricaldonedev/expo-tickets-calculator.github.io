@@ -152,8 +152,31 @@ function loadItems() {
 
 //logic
 
+
+
+// Check if the sessionId cookie already exists
+let sessionId = document.cookie.replace(/(?:(?:^|.*;\s*)sessionId\s*\=\s*([^;]*).*$)|^.*$/, "\$1");
+
+// If the sessionId cookie does not exist, generate a new sessionId and store it in a cookie
+if (!sessionId) {
+  sessionId = uuidv4(); // Generates a unique session ID
+  document.cookie = `sessionId=${sessionId}; path=/`; // Stores the session ID in a cookie
+}
+
 // Create WebSocket connection.
-const socketItemSelector = new WebSocket('ws://localhost:8080');
+const socketItemSelector = new WebSocket(`ws://localhost:8080/?sessionId=${sessionId}`);
+
+socketItemSelector.onping = () => {
+  console.log('Received ping from server. Sending pong...');
+};
+
+socketItemSelector.addEventListener('error', function (event) {
+  console.error('WebSocket error observed:', event);
+});
+
+socketItemSelector.addEventListener('close', function (event) {
+  console.log('WebSocket is closed now.');
+});
 
 function addProduct(event, idInput, selectedItemPrice, selectedItemId) {
   event.preventDefault();
@@ -248,6 +271,12 @@ function generateObjectsOfSelectedItems() {
   //sending the items object list to the table page
   socketItemSelector.send(JSON.stringify(selectedArticlesWithAmount));
 
+}
+
+function uuidv4() {
+  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+    (c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
 }
 
 function toUSDFormat(str) {

@@ -68,8 +68,11 @@
 
         let summaryTable = document.getElementById("summaryTable")
 
+        let sessionId = document.cookie.replace(/(?:(?:^|.*;\s*)sessionId\s*\=\s*([^;]*).*$)|^.*$/, "\$1");
+
+
         // Create WebSocket connection.
-        const socketSummaryTable = new WebSocket('ws://localhost:8080');
+        const socketSummaryTable = new WebSocket(`ws://localhost:8080/?sessionId=${sessionId}`);
 
         socketSummaryTable.addEventListener('message', (event) => {
             selectedArticles = []
