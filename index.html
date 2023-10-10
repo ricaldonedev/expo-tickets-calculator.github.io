@@ -13,8 +13,10 @@
 <body>
   <nav class="navbar bg-dark">
     <div class="container-fluid">
-      <p class="fs-3 fw-semibold text-light mb-0">Expotécnica 2023</p>
+      <p class="fs-3 fw-semibold text-light mb-0">Expotécnica <span id="navYear"></span></p>
       <form class="d-flex" role="search">
+        <button class="btn btn-primary me-3" type="button" onclick="openSummaryOnTable()">Ver lista de artículos
+          seleccionados</button>
         <button class="btn btn-warning" type="button" onclick="resetCalculations()">
           Nuevo cálculo
         </button>
@@ -40,7 +42,7 @@
         <div class="card">
           <h5 class="card-header text-center">Cálculos según artículos seleccionados</h5>
 
-          <div class="card-body">
+          <div class="card-body pt-1">
             <!-- TOTAL -->
             <p class="fw-bold fs-3 mb-0">
               Total a cobrar
@@ -58,7 +60,7 @@
 
             <hr>
             <!-- Alerts and final change calculations -->
-            <p class="fw-bold fs-3 mb-0">
+            <p class="fw-bold fs-3 mb-0 pt">
               Cambio para cliente
             </p>
             <div id="lblChange" class="pa-0 ma-0">
@@ -67,9 +69,14 @@
             </div>
           </div>
         </div>
-        <div class="d-grid gap-2 my-5">
-          <button class="btn btn-primary" type="button" onclick="openSummaryOnTable()">Ver lista de artículos
-            seleccionados</button>
+        <div class="d-grid gap-2 mt-2">
+          <div class="card mb-3">
+            <h5 class="card-header text-center">Resumen de artículos seleccionados</h5>
+            <div class="card-body d-flex flex-wrap mh-100 overflow-auto" id="selectedItemsSimpleSummaryContainer">
+
+
+            </div>
+          </div>
         </div>
 
       </div>

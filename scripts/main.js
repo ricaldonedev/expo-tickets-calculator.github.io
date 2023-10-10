@@ -5,7 +5,10 @@ let resetButton = document.getElementById("resetButton")
 let labelTotal = document.getElementById("lblTotal")
 let lblChange = document.getElementById("lblChange")
 let amountOfMoneyGiven = document.getElementById("amountOfMoneyGivenInput");
+let simpleSummaryContainer = document.getElementById('selectedItemsSimpleSummaryContainer');
+let navYear = document.getElementById("navYear")
 
+navYear.innerText = new Date().getFullYear();
 //Available items
 let selectedItemsIds = [];
 let selectedArticlesWithAmount = []
@@ -39,6 +42,50 @@ const itemsList = [
 //control variables
 let total = 0.0
 let moneyGiven = 0.0
+let simpleSummayColumnCount = 0
+
+function showInSimpleList() {
+  // Reset the column count
+  simpleSummayColumnCount = 0;
+
+  // Clear the container
+  simpleSummaryContainer.innerHTML = '';
+
+  let column; // Declare column here
+  selectedArticlesWithAmount.forEach(function (item) {
+    if (simpleSummayColumnCount % 1 === 0) {
+      // Create a new column
+      column = document.createElement('div');
+      column.className = 'col-6';
+      if (simpleSummaryContainer) {
+        simpleSummaryContainer.appendChild(column);
+      }
+    }
+
+    // Create a new item
+    let listItem = document.createElement('div');
+    listItem.className = 'list-group-item d-flex align-items-center mb-2 me-2';
+    listItem.innerHTML = '<span class="badge bg-warning text-dark rounded-pill me-2 fw-bold fs-5">' + item.count + '</span><p class="fw-bold fs-6 mb-0">' + item.name + '</p>';
+
+    // Check if column is defined before appending to it
+    if (column) {
+      // Add the item to the current column
+      column.appendChild(listItem);
+    } else {
+      // If column is not defined, append listItem to the last column
+      let lastColumn = simpleSummaryContainer.lastChild;
+      if (lastColumn) {
+        lastColumn.appendChild(listItem);
+      }
+    }
+
+    simpleSummayColumnCount++;
+  });
+}
+let totalSelected = 0
+function totalCountOfTickets() {
+  totalSelected = selectedArticlesWithAmount.reduce((total, article) => total + article.count, 0);
+}
 
 loadItems()
 
@@ -280,7 +327,7 @@ function resetCalculations() {
 }
 
 function openSummaryOnTable() {
-  window.open('selectedItems.html', '_blank', 'width=1366,height=768');
+  window.open('selectedItems.html', '_blank', 'width=1024,height=768');
 
   // The new window has opened
   setTimeout(() => {
@@ -290,6 +337,9 @@ function openSummaryOnTable() {
 }
 
 function updateChange() {
+  totalCountOfTickets();
+  showInSimpleList()
+
   if (moneyGiven != null && moneyGiven > -1 && !isNaN(parseFloat(moneyGiven))) {
     let changeToGive = parseFloat(moneyGiven) - parseFloat(total)
 

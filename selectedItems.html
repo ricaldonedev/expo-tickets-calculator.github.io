@@ -14,7 +14,7 @@
 
     <nav class="navbar bg-dark">
         <div class="container-fluid">
-            <p class="fs-3 fw-semibold text-light mb-0">Expotécnica 2023</p>
+            <p class="fs-3 fw-semibold text-light mb-0">Expotécnica <span id="navYear"></span></p>
             <form class="d-flex" role="search">
 
             </form>
@@ -28,19 +28,18 @@
             </div>
         </div>
         <div class="row">
-            <table id="summaryTable" class="table table-hover hide-container">
-                <thead>
-                    <tr>
-                        <th scope="col">Cantidad</th>
-                        <th scope="col">Artículo</th>
-                        <th scope="col">Precio unitario</th>
-                        <th scope="col">Precio total</th>
-                    </tr>
-                </thead>
-                <tbody id="selectedItemsTableBody">
-                    <!-- Here's where the items load -->
-                </tbody>
-            </table>
+
+            <div class="col-12 hide-container" id="summaryTable">
+                <div class="card mb-3 ">
+                    <div id="footerSummary">
+
+                    </div>
+                    <hr>
+                    <div class="card-body d-flex flex-wrap mh-100 overflow-auto" id="selectedItemsTableBody">
+                    </div>
+                </div>
+            </div>
+
             <div id="fallbackEmptyListMessage" class="col-12 d-flex align-items-center justify-content-center py-5">
                 <div class="alert alert-primary " role="alert">
                     <h4 class="alert-heading">No hay artículos seleccionados</h4>
@@ -65,6 +64,7 @@
         let tableBody = document.getElementById("selectedItemsTableBody")
         let selectedArticles
         let emptyTableFallbackMsg = document.getElementById("fallbackEmptyListMessage")
+        let footerSummary = document.getElementById("footerSummary")
 
         let summaryTable = document.getElementById("summaryTable")
 
@@ -90,6 +90,7 @@
             }
         });
 
+        let summaryColumnCount = 0
 
         function loadTable() {
             tableBody.innerHTML = ``
@@ -99,30 +100,50 @@
                 emptyTableFallbackMsg.classList.add("hide-container")
                 summaryTable.classList.remove("hide-container")
 
-                for (let index = 0; index < selectedArticles.length; index++) {
-                    const item = selectedArticles[index];
+                tableBody.innerHTML = '';
+                footerSummary.innerHTML = '';
 
-                    tableBody.innerHTML += ` 
-      <tr>
-        <td>
-                            <p class="fs-3 fw-bold mb-0">${item.count}</p>
-                        </td>
-                        <th class="d-flex align-items-center">
-                            <img style="max-width: 100px !important;" src="${item.img}" class="rounded">
-                            <div class="ms-4">
-                                <p>${item.name}</p>
-                            </div>
-                        </th>
-                     
-                        <td>
-                            <p class="fs-3 fw-bold mb-0">${toUSDFormat(item.price)}</p>
-                        </td>
-                        <td>
-                            <p class="fs-3 fw-bold mb-0 text-success">${toUSDFormat(item.price * item.count)}</p>
-                        </td>
-                        </tr>
-      `;
-                }
+                footerSummary.innerHTML = `
+                <p class="fw-semibold fs-4 mb-0 mt-2 text-center"> <span class="fw-bold text-danger fs-3">${selectedArticles.reduce((total, article) => total + article.count, 0)}</span> tickets por entregar.</p>
+                `;
+
+                // Reset the column count
+                summaryColumnCount = 0;
+
+                // Clear the container
+
+
+                let column; // Declare column here
+                selectedArticles.forEach(function (item) {
+                    if (summaryColumnCount % 1 === 0) {
+                        // Create a new column
+                        column = document.createElement('div');
+                        column.className = 'col-12 col-sm-6 col-md-4 col-xl-3';
+                        if (tableBody) {
+                            tableBody.appendChild(column);
+                        }
+                    }
+
+                    // Create a new item
+                    let listItem = document.createElement('div');
+                    listItem.className = 'list-group-item d-flex align-items-center mb-2 me-2';
+                    listItem.innerHTML = `<span class="badge bg-${summaryColumnCount % 2 === 0 ? 'warning' : 'info'} text-dark rounded-pill me-2 fw-bold fs-5">` + item.count + '</span><p class="fw-bold fs-6 mb-0">' + item.name + '</p>';
+
+                    // Check if column is defined before appending to it
+                    if (column) {
+                        // Add the item to the current column
+                        column.appendChild(listItem);
+                    } else {
+                        // If column is not defined, append listItem to the last column
+                        let lastColumn = tableBody.lastChild;
+                        if (lastColumn) {
+                            lastColumn.appendChild(listItem);
+                        }
+                    }
+
+                    summaryColumnCount++;
+                });
+
             } else {
                 emptyTableFallbackMsg.classList.remove("hide-container")
                 summaryTable.classList.add("hide-container")
